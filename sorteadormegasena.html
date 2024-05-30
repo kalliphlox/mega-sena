@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Loteria Mega-Sena</title>
+    <style>
+        body {
+            background-color: #d8f3dc;
+            font-family: Arial, sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <h1>Simulador de Loteria Mega-Sena</h1>
+    <p>Insira 6 números diferentes entre 1 e 60:</p>
+    <form id="lotteryForm">
+        <input type="number" id="num1" min="1" max="60" required>
+        <input type="number" id="num2" min="1" max="60" required>
+        <input type="number" id="num3" min="1" max="60" required>
+        <input type="number" id="num4" min="1" max="60" required>
+        <input type="number" id="num5" min="1" max="60" required>
+        <input type="number" id="num6" min="1" max="60" required>
+        <button type="button" onclick="simulateLottery()">Sortear</button>
+    </form>
+    <p id="result"></p>
+
+    <script>
+        function binarySearch(arr, target) {
+            let left = 0;
+            let right = arr.length - 1;
+
+            while (left <= right) {
+                const mid = Math.floor((left + right) / 2);
+                if (arr[mid] === target) {
+                    return true; 
+                } else if (arr[mid] < target) {
+                    left = mid + 1; 
+                } else {
+                    right = mid - 1; 
+                }
+            }
+            return false; 
+        }
+
+        function simulateLottery() {
+            const userNumbers = [
+                parseInt(document.getElementById('num1').value),
+                parseInt(document.getElementById('num2').value),
+                parseInt(document.getElementById('num3').value),
+                parseInt(document.getElementById('num4').value),
+                parseInt(document.getElementById('num5').value),
+                parseInt(document.getElementById('num6').value)
+            ];
+
+            const errors = [];
+            if (userNumbers.some(num => num < 1 || num > 60)) {
+                errors.push('Os números devem estar entre 1 e 60.');
+            } else if (new Set(userNumbers).size !== 6) {
+                errors.push('Os números devem ser diferentes.');
+            }
+
+            if (errors.length > 0) {
+                alert(errors.join('\n'));
+                return;
+            }
+
+            const drawNumbers = [];
+            while (drawNumbers.length < 6) {
+                const randomNum = Math.floor(Math.random() * 60) + 1;
+                if (!drawNumbers.includes(randomNum)) {
+                    drawNumbers.push(randomNum);
+                }
+            }
+
+            userNumbers.sort((a, b) => a - b);
+            drawNumbers.sort((a, b) => a - b);
+
+            let matchCount = 0;
+            userNumbers.forEach(num => {
+                if (binarySearch(drawNumbers, num)) {
+                    matchCount++;
+                }
+            });
+
+            let message;
+            switch (matchCount) {
+                case 6:
+                    message = 'Parabéns! Você acertou todos os 6 números e ganhou a SENA!';
+                    break;
+                case 5:
+                    message = 'Parabéns! Você acertou 5 números e ganhou a QUINA!';
+                    break;
+                case 4:
+                    message = 'Parabéns! Você acertou 4 números e ganhou a QUADRA!';
+                    break;
+                default:
+                    message = 'Infelizmente, você não ganhou nada.';
+            }
+
+            document.getElementById('result').innerHTML = `
+                <p><b>Números escolhidos:</b> ${userNumbers.join(', ')}</p>
+                <p><b>Números sorteados:</b> ${drawNumbers.join(', ')}</p>
+                <p>${message}</p>
+            `;
+        }
+    </script>
+</body>
+</html>
